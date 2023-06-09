@@ -16,6 +16,7 @@ def get_Redshift_connection(autocommit=True):
     return conn.cursor()
 
 
+
 @task
 def get_world_infos():
     # 세계나라 정보 받아와서
