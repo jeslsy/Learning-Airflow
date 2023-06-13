@@ -47,20 +47,21 @@ CREATE TABLE IF NOT EXISTS {schema}.{table} (
 @task
 def load(schema, table, records):
     logging.info("load started")
-    cur = get_Redshift_connection()
-    # 원본 테이블이 없으면 생성 - 테이블이 처음 한번 만들어질 때 필요한 코드
-    _create_table(cur, schema, table, False)
-    '''1. 임시 테이블로 원본 테이블을 복사'''
-    cur.execute(f"CREATE TEMP TABLE t AS SELECT * FROM {schema}.{table};")
-    '''2. 임시 테이블에 레코드 추가'''
-    for r in records:
-        sql = f"INSERT INTO t VALUES ('{r[0]}', {r[1]}, {r[2]}, {r[3]}, {r[4]}, {r[5]});"
-        print(sql)
-        cur.execute(sql)
 
     '''최소 범위 transaction'''
     try:
         cur.execute("BEGIN;")
+        cur = get_Redshift_connection()
+        # 원본 테이블이 없으면 생성 - 테이블이 처음 한번 만들어질 때 필요한 코드
+        _create_table(cur, schema, table, False)
+        '''1. 임시 테이블로 원본 테이블을 복사'''
+        cur.execute(f"CREATE TEMP TABLE t AS SELECT * FROM {schema}.{table};")
+        '''2. 임시 테이블에 레코드 추가'''
+        for r in records:
+            sql = f"INSERT INTO t VALUES ('{r[0]}', {r[1]}, {r[2]}, {r[3]}, {r[4]}, {r[5]});"
+            print(sql)
+            cur.execute(sql)
+
 
         '''3. 원본테이블 삭제'''
         cur.execute(f"DELETE FROM {schema}.{table};")
