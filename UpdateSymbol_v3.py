@@ -47,8 +47,7 @@ CREATE TABLE IF NOT EXISTS {schema}.{table} (
 @task
 def load(schema, table, records):
     logging.info("load started")
-
-    '''최소 범위 transaction'''
+    
     try:
         cur.execute("BEGIN;")
         cur = get_Redshift_connection()
